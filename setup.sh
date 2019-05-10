@@ -13,7 +13,7 @@ if [ ! -f .is_setup ]; then
     read silica_repo_name
     printf "Can you briefly describe what your repo is about? "
     read silica_repo_description
-    printf "What domain are you going to host the repo on? "
+    printf "What domain are you going to host the repo on (don't include https://, just the domain)? "
     read silica_repo_cname
     printf "What is *your* name? "
     read silica_repo_maintainer_name
