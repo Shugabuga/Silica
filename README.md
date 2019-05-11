@@ -9,7 +9,7 @@ The goal behind Silica is simple: make it as easy as possible to make a personal
 Silica, by default, is relatively straight-forward to configure. This tutorial is going to assume that you have the following already installed on your machine:
 - Python 3 (to run Silica)
 - `pip3` (for installing Python dependencies)
-- [Homebrew](https://brew.sh/)
+- [Homebrew](https://brew.sh/) (macOS users only)
 
 Silica is only officially supported on macOS and Debian-based OSes at the moment. We can not guarantee Windows support at this time. I'm sure you could get this working on other Linux distributions with a bit of tweaking, too. `btw i don't use arch`
 
