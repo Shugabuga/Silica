@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=0">
+    <title>{{repo_name}}</title>
+    <link rel="stylesheet" type="text/css" href="web/index.css">
+    <style>a, .tint {color: {{tint_color}}} .active {color: {{tint_color}}</style>
+    <meta name="description" content="{{repo_desc}}">
+    <meta property="og:title" content="{{repo_name}}">
+    <meta property="og:description" content="{{repo_desc}}">
+    <meta property="og:image" content="https://{{repo_url}}/CydiaIcon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{repo_name}}">
+    <meta name="twitter:description" content="{{repo_desc}}">
+    <meta name="twitter:image" content="https://{{repo_url}}/CydiaIcon.png">
+    <meta name="theme-color" content="{{tint_color}}">
+</head>
+<body>
+    <div class="body">
+        <h1 class="header left_float">{{repo_name}}</h1>
+        <a class="header right_float add_sileo tint" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://{{repo_url}}">+</a>
+        <div class="scroll_view">
+            {{{repo_carousel}}}
+        </div>
+        <h2 class="header">Packages</h2>
+        <div class="packageList">
+            {{#tweak_release}}
+                <a class="subtle_link" href="depiction/web/{{bundle_id}}.html">
+                    <div class="package">
+                        <img src="assets/{{bundle_id}}/icon.png">
+                        <div class="package_info">
+                            <p class="package_name">{{name}}</p>
+                            <p class="package_caption">{{developer.name}}</p>
+                        </div>
+                    </div>
+                </a>
+            {{/tweak_release}}
+        </div>
+        <div class="caption center footer">{{footer}}</div>
+    </div>
+
+</body>
+</html>

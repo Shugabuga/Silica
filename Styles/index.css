@@ -1,0 +1,220 @@
+* {
+    margin: 0;
+}
+
+.body {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Helvetica", sans-serif;
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+}
+
+@media only screen and (max-width: 600px) {
+    .body {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    .scroll_view {
+        width: calc(100vw - 60px);
+    }
+}
+@media only screen and (min-width: 601px) {
+    .body {
+        width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .scroll_view {
+        width: calc(500px - 40px);
+    }
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    margin: 2px;
+}
+
+.caption {
+    color: #bbb;
+    font-size: 16px;
+}
+
+.header {
+    margin-top: 40px;
+    margin-bottom: 25px;
+}
+
+.scroll_view {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    margin: 10px;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+.scroll_view > .card {
+    background-color: #ccc;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    height: 125px;
+    width: 275px;
+    position: relative;
+    display: inline-block;
+}
+
+.scroll_view > .img_card {
+    background-color: #ccc;
+    width: 250px;
+    margin: 5px;
+    border-radius: 10px;
+    font-weight: bold;
+    position: relative;
+    display: inline-block;
+}
+
+.card > p {
+    color: white;
+    bottom: 15px;
+    left: 15px;
+    font-size: 25px;
+    position: absolute;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8); 
+}
+
+.center {
+    text-align: center;
+}
+
+.left_float {
+    float: left;
+}
+
+.right_float { 
+    float: right;
+}
+
+.add_sileo {
+    font-size: 2em;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.add_sileo:hover, a:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.package {
+    margin-bottom: 40px;
+}
+
+.package > img {
+    border-radius: 20px;
+    width: 75px;
+    height: 75px;
+    float: left;
+}
+
+.package_info {
+    margin-left: 90px;
+}
+
+.package_name {
+    font-weight: bold;
+    font-size: 21px;
+}
+
+.package_caption {
+    margin-top: 7px;
+    color: #999;
+}
+
+.cell > .title {
+    float: left;
+    color: #999;
+}
+
+.cell > .text {
+    float: right;
+}
+
+h3 {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.footer {
+    margin-top: 20px;
+}
+
+.subtle_link, .subtle_link > div > div, .subtle_link > div > div > p {
+    text-decoration: none;
+    color: black;
+}
+
+.subtle_link:hover, .subtle_link > *:hover {
+    opacity: 0.8;
+}
+
+.green {
+    color: #00b90c;
+}
+
+.red {
+    color: #ba0000;
+}
+
+.banner_underlay {
+    background-size: cover;
+    background-position: center;
+    height: 150px;
+    width: 100%;
+    border-radius: 8px;
+    z-index: -2;
+    margin-bottom: 25px;
+    top: 0;
+}
+
+.changelog {
+    display: none;
+}
+
+.nav {
+    display: flex;
+    margin: 20px;
+    float: center;
+}
+
+.nav_btn {
+    width: 50%;
+    display:inline;
+    text-align: center;
+    color: #999;
+    font-weight: 500;
+    padding-bottom: 10px;
+    cursor: pointer;
+}
+
+.changelog_entry {
+    margin-bottom: 18px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.table-btn, .table-btn > div {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.table-btn:after {
+    content: "›";
+    font-size:30px;
+    transform: translateY(-40px);
+    float: right;
+}
