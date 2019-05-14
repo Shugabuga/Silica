@@ -7,7 +7,7 @@ The goal behind Silica is simple: make it as easy as possible to make a personal
 ## Getting Started
 
 Silica, by default, is relatively straight-forward to configure. This tutorial is going to assume that you have the following already installed on your machine:
-- Python 3 (to run Silica)
+- [Python 3](https://www.python.org/downloads/release/python-373/) (to run Silica)
 - `pip3` (for installing Python dependencies)
 - [Homebrew](https://brew.sh/) (macOS users only)
 
