@@ -29,7 +29,7 @@ apt-get install gnupg
 apt-get install git
 ```
 
-We also use `find` and `bzip2`, but most people have these installed by default.
+We also use `find`, `bzip2`, and `xz`, but most people have these installed by default.
 
 ### Dependencies and Settings
 
@@ -163,6 +163,10 @@ Here is a comprehensive example of an `index.json` file. These reside in the pac
         "name": "Shuga",
         "email": "sileo@shuga.co"
     },
+    "maintainer": {
+        "name": "Shuga",
+        "email": "sileo@shuga.co"
+    },
     "social": [
         {
             "name": "Twitter",
@@ -201,7 +205,7 @@ Here is a comprehensive example of an `index.json` file. These reside in the pac
 
 ### `settings.json`
 
-The `settings.json` file, located in the `Styles` folder, let you configure Silica as a while. Everything in this file is required except for `subfolder`, `social`, and `footer`.
+The `settings.json` file, located in the `Styles` folder, let you configure Silica as a while. Everything in this file is required except for `subfolder`, `social`, `footer`, and `enable_pgp`.
 
 ```json
 {
@@ -225,7 +229,8 @@ The `settings.json` file, located in the `Styles` folder, let you configure Sili
     ],
     "automatic_git": "false",
     "subfolder": "repo",
-    "footer": "{{repo_name}} Powered by Silica {{silica_version}}"
+    "footer": "{{repo_name}} Powered by Silica {{silica_version}}",
+    "enable_gpg": "false"
 }
 ```
 

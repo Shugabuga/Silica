@@ -53,11 +53,16 @@ class PackageLister:
         tweak_release = []
         for tweakEntry in PackageLister.ListDirNames(self):
             with open(self.root + "Packages/" + tweakEntry + "/silica_data/index.json", "r") as content_file:
-                data = json.load(content_file)
+                try:
+                    data = json.load(content_file)
+                except Exception:
+                    PackageLister.ErrorReporter(self, "Configuration Error!", "The package configuration file at \"" +
+                        self.root + "Packages/" + tweakEntry + "/silica_data/index.json\" is malformatted. Please check"
+                        " for any syntax errors in a JSON linter and run Silica again.")
                 tweak_release.append(data)
         return tweak_release
 
-    def GetScreenshots(self,tweak_data):
+    def GetScreenshots(self, tweak_data):
         """
         Get an array of screenshot names copied over to the static site.
 
@@ -121,7 +126,12 @@ class PackageLister:
                 
     def GetRepoSettings(self):
         with open(self.root + "Styles/settings.json", "r") as content_file:
-            return json.load(content_file)
+            try:
+                return json.load(content_file)
+            except Exception:
+                PackageLister.ErrorReporter(self, "Configuration Error!", "The Silica configuration file at \"" +
+                    self.root + "Styles/settings.json\" is malformatted. Please check for any syntax errors in a JSON"
+                    " linter and run Silica again.")
 
     def FullPathCname(self, repo_settings):
         """
@@ -147,3 +157,7 @@ class PackageLister:
         for tweak in tweak_release:
             if tweak['bundle_id'] == bundle_id:
                 return tweak['section']
+
+    def ErrorReporter(self, title, message):
+        print('\033[91m- {0} -\n{1}\033[0m'.format(title, message))
+        quit()

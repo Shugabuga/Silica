@@ -12,7 +12,7 @@ from util.DepictionGenerator import DepictionGenerator
 from util.PackageLister import PackageLister
 from util.DebianPackager import DebianPackager
 
-version = "1.0.0"
+version = "1.1.0"
 
 
 def main():
@@ -73,8 +73,12 @@ def main():
                 shutil.copy(root + "Styles/Generic/Icon/" + category + ".png",
                             root + "docs/assets/" + package_bundle_id + "/icon.png")
             except Exception:
-                shutil.copy(root + "Styles/Generic/Icon/Generic.png",
-                            root + "docs/assets/" + package_bundle_id + "/icon.png")
+                try:
+                    shutil.copy(root + "Styles/Generic/Icon/Generic.png",
+                                root + "docs/assets/" + package_bundle_id + "/icon.png")
+                except Exception:
+                    PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root +
+                        "Styles/Generic/Icon/Generic.png. Please place an icon here to be the repo's default.")
 
         try:
             shutil.copy(root + "Packages/" + package_name + "/silica_data/banner.png",
@@ -86,8 +90,12 @@ def main():
                 shutil.copy(root + "Styles/Generic/Banner/" + category + ".png",
                             root + "docs/assets/" + package_bundle_id + "/banner.png")
             except Exception:
-                shutil.copy(root + "Styles/Generic/Banner/Generic.png",
-                            root + "docs/assets/" + package_bundle_id + "/banner.png")
+                try:
+                    shutil.copy(root + "Styles/Generic/Banner/Generic.png",
+                               root + "docs/assets/" + package_bundle_id + "/banner.png")
+                except Exception:
+                    PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root +
+                        "Styles/Generic/Banner/Generic.png. Please place a banner here to be the repo's default.")
 
         try:
             shutil.copy(root + "Packages/" + package_name + "/silica_data/description.md",
@@ -100,7 +108,11 @@ def main():
                             root + "docs/assets/" + package_bundle_id + "/screenshot")
         except Exception:
             pass
-    shutil.copy(root + "Styles/icon.png", root + "docs/CydiaIcon.png")
+    try:
+        shutil.copy(root + "Styles/icon.png", root + "docs/CydiaIcon.png")
+    except Exception:
+        PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root + "Styles/icon.png. "
+            "Please add a PNG here to act as the repo's icon.")
 
     ###########
     # Step 3: Generate HTML depictions and copy stylesheet

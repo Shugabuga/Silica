@@ -216,7 +216,6 @@ class DepictionGenerator:
 
         Object tweak_data: A single index of a "tweak release" object.
         """
-        date = datetime.datetime.now().strftime("%Y-%m-%d")
         try:
             changelog = []
             for version in tweak_data['changelog'][::-1]:
@@ -414,7 +413,12 @@ class DepictionGenerator:
             except Exception:
                 pass
         if len(banners) == 0:
-            featured_int = random.randint(0,(len(tweak_release)-1))
+            try:
+                featured_int = random.randint(0,(len(tweak_release)-1))
+            except Exception:
+                PackageLister.ErrorReporter(self, "Configuration Error!", "You have no packages added to this repo. "
+                      "Make sure a folder is created at \"" + self.version + "/Packages\" that contains folders with "
+                      "package data inside of them and run Silica again.")
             featured_package = tweak_release[featured_int]
             ar_el = {
                 "package": featured_package['bundle_id'],
@@ -462,7 +466,13 @@ class DepictionGenerator:
             except Exception:
                 pass
         if list_el == "":
-            featured_int = random.randint(0,(len(tweak_release)-1))
+            try:
+                featured_int = random.randint(0,(len(tweak_release)-1))
+            except Exception:
+                PackageLister.ErrorReporter(self, "Configuration Error!", "You have no packages added to this repo."
+                    " Make sure a folder is created at \"" + self.version +
+                    "/Packages\" that contains folders with package data inside of them and run Silica again.")
+
             featured_package = tweak_release[featured_int]
             list_el += DepictionGenerator.CarouselEntry(self, featured_package['name'],
                                                         "assets/" + featured_package['bundle_id'] + "/banner.png",
@@ -537,7 +547,7 @@ class DepictionGenerator:
                     {
                         "class": "DepictionMarkdownView",
                         "markdown": "The developer of the package \"" + tweak_data['name']
-                                    + "\" is not known. Try contacting the repo maintainer for more information."
+                                    + "\" is not known. Try contacting the repo owner for more information."
                     }
                 )
 
@@ -561,18 +571,50 @@ class DepictionGenerator:
         except Exception:
             pass
 
+        try:
+            if tweak_data['maintainer']['email']:
+                view.append(
+                    {
+                        "class": "DepictionMarkdownView",
+                        "markdown": tweak_data['maintainer']['name'] + " is the maintainer of the package \"" +
+                                    tweak_data['name'] + "\". Please contact them via email for any questions on this"
+                                    " version of the package."
+                    }
+                )
+                view.append(
+                    {
+                        "class": "DepictionTableButtonView",
+                        "title": "Email Maintainer",
+                        "action": "mailto:" + tweak_data['maintainer']['email'],
+                        "openExternal": "true",
+                        "tintColor": tint
+                    }
+                )
+        except Exception:
+            try:
+                view.append(
+                    {
+                        "class": "DepictionMarkdownView",
+                        "markdown": "If you need help with \"" + tweak_data['name'] + "\", you should contact "
+                                    + tweak_data['maintainer']['name']
+                                    + ", who is the package's current maintainer. Sadly, we don't know their email."
+                    }
+                )
+            except Exception:
+                pass
+
         view.append(
             {
                 "class": "DepictionMarkdownView",
                 "markdown": "If you found a mistake in the depiction or cannot download the package, you can reach out"
-                            + "to the maintainer of the \"" + repo_settings['name'] + "\" repo, "
+                            + " to the maintainer of the \"" + repo_settings['name'] + "\" repo, "
                             + repo_settings['maintainer']['name'] + "."
             }
         )
         view.append(
             {
                 "class": "DepictionTableButtonView",
-                "title": "Email Maintainer",
+                "title": "Email Repo Maintainer",
                 "action": "mailto:" + repo_settings['maintainer']['email'],
                 "openExternal": "true",
                 "tintColor": tint
@@ -584,7 +626,7 @@ class DepictionGenerator:
                 view.append(
                     {
                         "class": "DepictionMarkdownView",
-                        "markdown": "You can also contact the repo maintainer via the following" +
+                        "markdown": "You can also contact the repo owner via the following" +
                         " sites:"
                     }
                 )

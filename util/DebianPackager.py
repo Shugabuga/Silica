@@ -6,6 +6,7 @@ from subprocess import call  # call dpkg-deb
 from pydpkg import Dpkg  # Retrieve data from DEBs
 from util.PackageLister import PackageLister
 from util.DpkgPy import DpkgPy
+import shutil  # Used to copy files
 
 
 class DebianPackager(object):
@@ -52,19 +53,15 @@ class DebianPackager(object):
         control_file += "Name: " + tweak_data['name'] + "\n"
         control_file += "Version: " + tweak_data['version'] + "\n"
         # Known properties
-        control_file += "Depiction: https://" + repo_settings['cname'] + subfolder + "/depiction/web/" + tweak_data['bundle_id'] \
+        control_file += "Depiction: https://" + repo_settings['cname'] + subfolder + "/depiction/web/" + tweak_data[
+            'bundle_id'] \
                         + ".html\n"
         control_file += "SileoDepiction: https://" + repo_settings['cname'] + subfolder + "/depiction/native/" \
                         + tweak_data['bundle_id'] + ".json\n"
         control_file += "ModernDepiction: https://" + repo_settings['cname'] + subfolder + "/depiction/native/" \
                         + tweak_data['bundle_id'] + ".json\n"
-        control_file += "Icon: https://" + repo_settings['cname'] + subfolder + "/assets/" + tweak_data['bundle_id'] + "/icon.png\n"
-        try:
-            if repo_settings['maintainer']['email']:
-                control_file += "Maintainer: " + repo_settings['maintainer']['name'] + " <" \
-                                + repo_settings['maintainer']['email'] + ">\n"
-        except Exception:
-            control_file += "Maintainer: " + repo_settings['maintainer']['name'] + ">\n"
+        control_file += "Icon: https://" + repo_settings['cname'] + subfolder + "/assets/" + tweak_data[
+            'bundle_id'] + "/icon.png\n"
 
         # Optional properties
         try:
@@ -158,13 +155,31 @@ class DebianPackager(object):
             control_file += "Author: Unknown\n"
 
         try:
+            if tweak_data['maintainer']['email']:
+                control_file += "Maintainer: " + tweak_data['maintainer']['name'] + " <" \
+                                + tweak_data['maintainer']['email'] + ">\n"
+        except Exception:
+            try:
+                control_file += "Maintainer: " + tweak_data['maintainer']['name'] + "\n"
+            except Exception:
+                try:
+                    if tweak_data['developer']['email']:
+                        control_file += "Maintainer: " + tweak_data['developer']['name'] + " <" \
+                                        + tweak_data['developer']['email'] + ">\n"
+                except Exception:
+                    try:
+                        control_file += "Maintainer: " + tweak_data['developer']['name'] + "\n"
+                    except Exception:
+                        control_file += "Maintainer: Unknown\n"
+
+        try:
             if tweak_data['sponsor']:
                 try:
                     if tweak_data['sponsor']['email']:
                         control_file += "Sponsor: " + tweak_data['sponsor']['name'] + " <" + tweak_data['sponsor'][
                             'email'] + ">\n"
                 except Exception:
-                    control_file += "Sponsor: " + tweak_data['sponsor']['name'] + ">\n"
+                    control_file += "Sponsor: " + tweak_data['sponsor']['name'] + "\n"
         except Exception:
             pass
 
@@ -200,7 +215,7 @@ class DebianPackager(object):
                         changelog_entry = input("The DEB provided for \"" + update_json['name'] +
                                                 "\" has a new version available (" + recorded_version + " -> " +
                                                 deb.version + "). What changed in this version?\n(Add multiple lines" +
-                                                " by using a newline character [\\n] and use valid Markdown syntax.): "
+                                                " by using newline characters [\\n\\n] and use valid Markdown syntax): "
                                                 )
                         try:
                             update_json['changelog'].append({
@@ -212,6 +227,18 @@ class DebianPackager(object):
                                 "version": deb.version,
                                 "changes": changelog_entry
                             }
+
+                        # Get human-readable folder name
+                        folder = PackageLister.BundleIdToDirName(self, bundle_id)
+                        deb_path = self.root + "Packages/" + folder + "/" + file_name
+                        # Extract Control file and scripts from DEB
+                        DpkgPy.control_extract(self, deb_path, self.root + "Packages/" + folder +
+                                               "/silica_data/scripts/")
+                        # Remove the Control; it's not needed.
+                        os.remove(self.root + "Packages/" + folder + "/silica_data/scripts/Control")
+                        if not os.listdir(self.root + "Packages/" + folder + "/silica_data/scripts/"):
+                            os.rmdir(self.root + "Packages/" + folder + "/silica_data/scripts/")
+
                         return_str = json.dumps(update_json)
                         print("Updating package index.json...")
                         PackageLister.CreateFile(self, "Packages/" + package_name +
@@ -244,11 +271,9 @@ class DebianPackager(object):
                                 is_deb = True
                                 deb_path = self.root + "Packages/" + folder + "/" + file_name
                     except Exception:
-                        print("\033[91m- Configuration Error! -\n"
-                              "Please put your .deb file inside of its own folder. The \"Packages\" directory"
-                              " should be made of multiple folders that each contain data for a single package.\n"
-                              "Please fix this issue and try again.\033[0m")
-                        quit()
+                        PackageLister.ErrorReporter(self, "Configuration Error!", "Please put your .deb file inside of "
+                            "its own folder. The \"Packages\" directory should be made of multiple folders that each "
+                            "contain data for a single package.\n Please fix this issue and try again.")
 
                     # This will be the default scaffolding for our package. Eventually I'll neuter it to only be the
                     # essential elements; it's also kinda a reference to me.
@@ -259,6 +284,10 @@ class DebianPackager(object):
                         "tagline": "An unknown package.",
                         "homepage": "https://shuga.co/",
                         "developer": {
+                            "name": "Unknown",
+                            "email": "idk@example.com"
+                        },
+                        "maintainer": {
                             "name": "Unknown",
                             "email": "idk@example.com"
                         },
@@ -286,10 +315,18 @@ class DebianPackager(object):
                             remove_email_regex = re.compile('<.*?>')
                             output['developer']['name'] = remove_email_regex.sub("", deb.headers['Author'])
                         except Exception:
-                            output['developer']['name'] = input("Who made this package? This is likely your name. ")
-                        output['developer']['email'] = input("What is the author's email address? ")
+                            output['developer']['name'] = input("Who originally made this package? This may be"
+                                                                " your name. ")
+                        output['developer']['email'] = input("What is the original author's email address? ")
                         try:
-                            output['sponsor']['name'] = deb.headers['Sponsor']
+                            remove_email_regex = re.compile('<.*?>')
+                            output['maintainer']['name'] = remove_email_regex.sub("", deb.headers['Maintainer'])
+                        except Exception:
+                            output['maintainer']['name'] = input("Who maintains this package now?"
+                                                                 " This is likely your name. ")
+                        output['maintainer']['email'] = input("What is the maintainer's email address? ")
+                        try:
+                            output['sponsor']['name'] = remove_email_regex.sub("", deb.headers['Sponsor'])
                         except Exception:
                             pass
                         try:
@@ -344,9 +381,13 @@ class DebianPackager(object):
                         output['works_min'] = input("What is the lowest iOS version the package works on? ")
                         output['works_max'] = input("What is the highest iOS version the package works on? ")
                         output['featured'] = input("Should this package be featured on your repo? (true/false) ")
+                        set_tint = input("What would you like this package's tint color to be? To keep it at"
+                                         " the default, leave this blank: ")
+                        if set_tint != "":
+                            output['tint'] = set_tint
                         print("All done! Please look over the generated \"index.json\" file and consider populating the"
                               " \"silica_data\" folder with a description, screenshots, and an icon.")
-                        # Extract Control file from DEB
+                        # Extract Control file and scripts from DEB
                         DpkgPy.control_extract(self, deb_path, self.root + "Packages/" + folder +
                                                "/silica_data/scripts/")
                         # Remove the Control; it's not needed.
@@ -390,7 +431,7 @@ class DebianPackager(object):
                         # Automatically generate a bundle ID from the package name.
                         domain_breakup = repo_settings['cname'].split(".")[::-1]
                         only_alpha_regex = re.compile('[^a-zA-Z]')
-                        machine_safe_name = only_alpha_regex.sub("",output['name']).lower()
+                        machine_safe_name = only_alpha_regex.sub("", output['name']).lower()
                         output['bundle_id'] = ".".join(str(x) for x in domain_breakup) + "." + machine_safe_name
                         output['tagline'] = input("What is a brief description of the package? ")
                         output['homepage'] = "https://" + repo_settings['cname']
@@ -403,8 +444,6 @@ class DebianPackager(object):
                     PackageLister.CreateFolder(self, "Packages/" + folder + "/silica_data/")
                     PackageLister.CreateFile(self, "Packages/" + folder + "/silica_data/index.json", json.dumps(output))
 
-
-
     def CompilePackages(self):
         """
         Creates a Packages.bz2 file.
@@ -412,20 +451,35 @@ class DebianPackager(object):
         # TODO: Update DpkgPy to generate DEB files without dependencies (for improved win32 support)
         call(["dpkg-scanpackages", "-m", "."], cwd=self.root + "docs/", stdout=open(self.root + "docs/Packages", "w"))
         # For this, we're going to have to run it and then get the output. From here, we can make a new file.
+        shutil.copy(self.root + "docs/Packages", self.root + "docs/Packages2")
         call(["bzip2", "Packages"], cwd=self.root + "docs/")
+        call(["mv", "Packages2", "Packages"], cwd=self.root + "docs/")
+        call(["xz", "Packages"], cwd=self.root + "docs/")
 
     def SignRelease(self):
         """
         Signs Release to create Release.gpg. Also adds hash for Packages.bz2 in Release.
         """
-        with open(self.root + "docs/Packages.bz2", "rb") as content_file:
+        with open(self.root + "docs/Packages.bz2", "rb") as content_file,\
+            open(self.root + "docs/Packages.xz", "rb") as content_file_xz:
             bzip_raw = content_file.read()
             bzip_sha256_hash = hashlib.sha256(bzip_raw).hexdigest()
             bzip_size = os.path.getsize(self.root + "docs/Packages.bz2")
+            xz_raw = content_file_xz.read()
+            xz_sha256_hash = hashlib.sha256(xz_raw).hexdigest()
+            xz_size = os.path.getsize(self.root + "docs/Packages.xz")
             with open(self.root + "docs/Release", "a") as text_file:
-                text_file.write("\nSHA256:\n " + str(bzip_sha256_hash) + " " + str(bzip_size) + " Packages.bz2")
-                key = "Silica MobileAPT Repository"  # Most of the time, this is acceptable.
-                call(["gpg", "-abs", "-u", key, "-o", "Release.gpg", "Release"], cwd=self.root + "docs/")
+                text_file.write("\nSHA256:\n " + str(bzip_sha256_hash) + " " + str(bzip_size) + " Packages.bz2"
+                                "\n " + str(xz_sha256_hash) + " " + str(xz_size) + " Packages.xz")
+                repo_settings = PackageLister.GetRepoSettings(self)
+                try:
+                    if repo_settings['enable_gpg'].lower() == "true":
+                        print("Signing repository with GPG...")
+                        key = "Silica MobileAPT Repository"  # Most of the time, this is acceptable.
+                        call(["gpg", "-abs", "-u", key, "-o", "Release.gpg", "Release"], cwd=self.root + "docs/")
+                        print("Generated Release.gpg!")
+                except Exception:
+                    pass
 
     def PushToGit(self):
         """

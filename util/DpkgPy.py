@@ -27,10 +27,21 @@ class DpkgPy:
                 data_tar = tarfile.open(fileobj=data_bin)
                 data_tar.extractall(output_path)
             except Exception:
-                data_theos_bin = root_ar.archived_files[b'data.tar.lzma']
-                data_theos_bin.seekable = lambda: True
-                data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
-                data_theos_tar.extractall(output_path)  # This is an actual Python/lzma implementation bug from the looks of it.
+                try:
+                    data_theos_bin = root_ar.archived_files[b'data.tar.lzma']
+                    data_theos_bin.seekable = lambda: True
+                    data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
+                    data_theos_tar.extractall(output_path)
+                except Exception:
+                    try:
+                        data_theos_bin = root_ar.archived_files[b'data.tar.xz']
+                        data_theos_bin.seekable = lambda: True
+                        data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
+                        data_theos_tar.extractall(output_path)
+                    except Exception:
+                        print("\033[91m- DEB Extraction Error -\n"
+                              "The DEB file inserted for one of your packages is invalid. Please report this as a bug "
+                              "and attach the DEB file at \"" + output_path + "\".\033[0m")
 
             control_bin = root_ar.archived_files[b'control.tar.gz']
             control_tar = tarfile.open(fileobj=control_bin)
