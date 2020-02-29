@@ -12,7 +12,7 @@ from util.DepictionGenerator import DepictionGenerator
 from util.PackageLister import PackageLister
 from util.DebianPackager import DebianPackager
 
-version = "1.2.0"
+version = "1.2.1"
 
 
 def main():
@@ -24,10 +24,12 @@ def main():
 
     root = os.path.dirname(os.path.abspath(__file__)) + "/"
 
-    try:
-        shutil.rmtree(root + "docs/")
-    except Exception:
-        pass
+    # Remove everything except for the DEBs.
+    DepictionGenerator.CleanUp()
+    # try:
+    #     shutil.rmtree(root + "docs/")
+    # except Exception:
+    #     pass
 
     try:
         shutil.rmtree(root + "temp/")

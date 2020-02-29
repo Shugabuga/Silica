@@ -24,7 +24,7 @@ class DebianPackager(object):
 
     def CompileRelease(self, repo_settings):
         """
-        Compiles a CONTROL file from a tweak_data object
+        Compiles a Release file from a repo_settings object
 
         Object repo_settings: An object of repo settings.
         """
@@ -199,6 +199,8 @@ class DebianPackager(object):
         Creates a DEB from information stored in the "temp" folder.
 
         String bundle_id: The bundle id of the package to compress.
+        String recorded_version: 
+        Object tweak_release: A "tweak release" object.
         """
         # TODO: Find a Python-based method to safely delete all DS_Store files.
         call(["find", ".", "-name", ".DS_Store", "-delete"],
@@ -250,7 +252,17 @@ class DebianPackager(object):
                 os.remove(self.root + "temp/" + bundle_id + "/control")
         else:
             # TODO: Update DpkgPy to generate DEB files without dependencies (for improved win32 support)
-            call_result = call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
+            # If the version is consistent, then assume the package is unchanged. Don't regenerate it.
+            try:
+                docs_deb = Dpkg(self.root + "docs/pkg/" + bundle_id + ".deb")
+                if docs_deb.version == recorded_version:
+                    shutil.copy(self.root + "docs/pkg/" + bundle_id + ".deb", self.root + "temp/" + bundle_id + ".deb")
+                    call_result = 0;
+                else:
+                    # Sneaky swap.
+                    call_result = call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
+            except:
+                call_result = call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
             if call_result != 0:
                 # Did we run within WSL?
                 if "Microsoft" in platform.release():

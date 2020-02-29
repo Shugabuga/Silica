@@ -20,6 +20,75 @@ class DepictionGenerator:
         self.root = os.path.dirname(os.path.abspath(__file__)) + "/../"
         self.PackageLister = PackageLister(self.version)
 
+    def CleanUp(self):
+        """
+        Cleans up some stuff.
+        """
+        # Remove all Silica-generated folders in docs/ except for docs/pkg/.
+        try:
+            shutil.rmtree(root + "docs/api")
+        except Exception:
+            pass
+
+        try:
+            shutil.rmtree(root + "docs/assets")
+        except Exception:
+            pass
+
+        try:
+            shutil.rmtree(root + "docs/depiction")
+        except Exception:
+            pass
+
+        try:
+            shutil.rmtree(root + "docs/web")
+        except Exception:
+            pass
+
+        # Delete all Silica-generated files in root.
+        try:
+            os.remove(self.root + "docs/404.html")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/CNAME")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/CydiaIcon.png")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/index.html")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/Packages")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/Packages.bz2")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/Packages.xz")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/Release")
+        except Exception:
+            pass
+        try:
+            os.remove(self.root + "docs/sileo-featured.json")
+        except Exception:
+            pass
+
+        # Clean up temp.
+        try:
+            shutil.rmtree(root + "temp/")
+        except Exception:
+            pass
+
     def RenderPackageHTML(self, tweak_data):
         """
         Renders a package's depiction.

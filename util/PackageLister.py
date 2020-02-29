@@ -158,6 +158,17 @@ class PackageLister:
             if tweak['bundle_id'] == bundle_id:
                 return tweak['section']
 
+    def ResolveVersion(self, tweak_release, bundle_id):
+        """
+        Returns the version when given a bundle ID.
+
+        Object tweak_release: A "tweak release" object.
+        String bundle_id: The bundle ID of the tweak.
+        """
+        for tweak in tweak_release:
+            if tweak['bundle_id'] == bundle_id:
+                return tweak['version']
+
     def ErrorReporter(self, title, message):
         print('\033[91m- {0} -\n{1}\033[0m'.format(title, message))
         quit()
