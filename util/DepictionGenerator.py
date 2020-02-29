@@ -208,7 +208,7 @@ class DepictionGenerator:
         except Exception:
             pass
 
-        return json.dumps(depiction)
+        return json.dumps(depiction, separators=(',', ':'))
 
     def RenderNativeChangelog(self, tweak_data):
         """
@@ -435,7 +435,7 @@ class DepictionGenerator:
             "itemCornerRadius": 8,
             "banners": banners
         }
-        return json.dumps(featured_json)
+        return json.dumps(featured_json, separators=(',', ':'))
 
     def PackageEntryList(self, tweak_release):
         """
@@ -646,4 +646,4 @@ class DepictionGenerator:
             "tintColor": tint,
             "title": "Contact Support",
             "views": view
-        })
+        }, separators=(',', ':'))

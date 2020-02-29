@@ -202,9 +202,9 @@ def main():
     # Step 9: Make API endpoints
     ###########
 
-    PackageLister.CreateFile("docs/api/tweak_release.json", json.dumps(tweak_release))
-    PackageLister.CreateFile("docs/api/repo_settings.json", json.dumps(repo_settings))
-    PackageLister.CreateFile("docs/api/about.json", json.dumps(DepictionGenerator.SilicaAbout()))
+    PackageLister.CreateFile("docs/api/tweak_release.json", json.dumps(tweak_release, separators=(',', ':')))
+    PackageLister.CreateFile("docs/api/repo_settings.json", json.dumps(repo_settings, separators=(',', ':')))
+    PackageLister.CreateFile("docs/api/about.json", json.dumps(DepictionGenerator.SilicaAbout(), separators=(',', ':')))
 
     ###########
     # Step 10: Push to GitHub
