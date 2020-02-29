@@ -218,3 +218,14 @@ a {
     transform: translateY(-40px);
     float: right;
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #161616;
+        color: white;
+    }
+
+    .subtle_link, .subtle_link > div > div, .subtle_link > div > div > p {
+        color: white;
+    }
+}
