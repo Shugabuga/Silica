@@ -7,6 +7,14 @@ if [ ! -f .is_setup ]; then
 
     echo "Give us a second to install the Python dependencies."
     pip3 install -r requirements.txt
+    if [ $? -eq 2 ]; then
+        echo "Error: Something went wrong. We may need root to continue. Please put in your password to continue."
+        sudo pip3 install -r requirements.txt
+        if [ $? -eq 2 ]; then
+            echo "Error: Cannot install Python dependencies. Check your permissions and try again."
+            exit
+        fi
+    fi
     echo "Installed all required packages! Now, just a few questions about you."
     echo ""
     printf "What should your repo be called? "

@@ -13,6 +13,78 @@ Silica, by default, is relatively straight-forward to configure. This tutorial i
 
 Silica is only officially supported on macOS and Debian-based OSes at the moment. We can not guarantee Windows support at this time. I'm sure you could get this working on other Linux distributions with a bit of tweaking, too. `btw i don't use arch`
 
+### Silica for Windows Subsystem for Linix (WSL)
+
+**If you are not using Windows, skip down to Dependencies.**
+
+Due to Silica requiring dpkg-deb to properly work, you cannot run Silica in native Windows.
+As a result, you need to set your machine up WSL and Ubuntu for Windows, which will allow for Linux
+programs to run in Windows via a terminal.
+
+#### 1. Set up WSL
+Please follow [this official tutorial](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Please use Ubuntu for ideal results.
+
+#### 2. Setting up WSL for `dpkg-deb`
+Due to how `dpkg-deb` handles permissions, we need to change some settings to make things work.
+
+1. Run `sudo nano /etc/wsl.conf` to edit the WSL config.
+2. Copy and paste the following text into the file.
+
+```ini
+[automount]
+enabled = true
+root = /mnt/
+options = "umask=22,fmask=11"
+```
+
+3. Run the following command to update your `umask` to `0022`.
+```bash
+echo "\numask 0022" >> ~/.bashrc
+```
+
+4. Open up Windows PowerShell as an administrator by right-clicking on the Windows button.
+
+5. Run this command to restart WSL:
+
+```powershell
+Get-Service LxssManager | Restart-Service
+```
+
+(Note: Please always run Silica through the Ubuntu program or Windows Terminal.)
+
+*(Tip courtesy of [/u/zoredache on Reddit](https://www.reddit.com/r/bashonubuntuonwindows/comments/a7v5d8/problems_with_dpkgdeb_bad_permissions_how_do_i/).)*
+
+##### 3. Install dependencies
+
+Like any Debian-based system (like Ubuntu), we need to install some dependencies before downloading Silica.
+
+```bash
+apt-get install gnupg
+apt-get install git
+```
+
+##### 3. Getting Silica
+
+Now it's time to get Silica! Because of how Windows deals with line breaks, we need to download Silica via Git.
+If you already downloaded Silica via your web browser, delete it. We'll redownload it in a second.
+
+Once you are in the directory you want to download Silica to, run this command:
+
+```bash
+git clone https://github.com/Shugabuga/Silica/
+```
+
+This will create a new folder for Silica.
+
+##### 4. Text Editors and line breaks
+
+Due to how Windows deals with line breaks, if you wish to create Silica config files by hand, you need to make sure
+your text editor uses Unix line breaks. This varies by text editor and IDE, so look for a setting about line breaks
+or EOL characters and set it to Unix.
+
+
+**From here, you're all set** for Windows-specific instructions! Now follow the Debian instructions.
+
 ### Dependencies
 
 We know that some developers will already have these dependencies installed. If you know you already have a dependency, there is no need to re-install it.
@@ -31,7 +103,9 @@ apt-get install git
 
 We also use `find`, `bzip2`, and `xz`, but most people have these installed by default.
 
-### Dependencies and Settings
+(Windows Subsystem for Linux users already did this step.)
+
+### Other Dependencies and Settings
 
 Now that any needed system dependencies are installed, we need to install some Python dependencies and configure `settings.json`. Thankfully, the included `setup.sh` script handles this for you!
 

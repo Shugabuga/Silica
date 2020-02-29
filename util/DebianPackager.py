@@ -1,8 +1,9 @@
 import os  # For file path correction
-import hashlib  # sha256 for Release file
-import re  # regex
+import hashlib  # SHA256 for Release file
+import re  # Regular expressions.
 import json  # Used to parse various JSON files
-from subprocess import call  # call dpkg-deb
+import platform  # Detect use of WSL.
+from subprocess import call  # Call dpkg-deb
 from pydpkg import Dpkg  # Retrieve data from DEBs
 from util.PackageLister import PackageLister
 from util.DpkgPy import DpkgPy
@@ -249,7 +250,16 @@ class DebianPackager(object):
                 os.remove(self.root + "temp/" + bundle_id + "/control")
         else:
             # TODO: Update DpkgPy to generate DEB files without dependencies (for improved win32 support)
-            call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
+            call_result = call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
+            if call_result != 0:
+                # Did we run within WSL?
+                if "Microsoft" in platform.release():
+                    PackageLister.ErrorReporter(self, "Platform Error!", "dpkg-deb failed to run. "
+                    "This is due to improper configuration of WSL. Please check the Silcia README for "
+                    "how to set up WSL for dpkg-deb.")
+                else:
+                    PackageLister.ErrorReporter(self, "Platform Error!", "dpkg-deb failed to run. "
+                    "This may be due to a faulty system configuration.")
 
     def CheckForSilicaData(self):
         """
