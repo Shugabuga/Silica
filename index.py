@@ -132,7 +132,8 @@ def main():
         tweak_html = DepictionGenerator.RenderPackageHTML(tweak_data)
         PackageLister.CreateFile("docs/depiction/web/" + tweak_data['bundle_id'] + ".html", tweak_html)
 
-    PackageLister.CreateFile("docs/CNAME", repo_settings['cname'])
+    if "github.io" not in repo_settings['cname'].lower():
+        PackageLister.CreateFile("docs/CNAME", repo_settings['cname'])
 
     ###########
     # Step 4: Generate Sileo depictions and featured JSON
