@@ -492,7 +492,7 @@ class DebianPackager(object):
             xz_size = os.path.getsize(self.root + "docs/Packages.xz")
             with open(self.root + "docs/Release", "a") as text_file:
                 text_file.write("\nSHA256:\n " + str(bzip_sha256_hash) + " " + str(bzip_size) + " Packages.bz2"
-                                "\n " + str(xz_sha256_hash) + " " + str(xz_size) + " Packages.xz")
+                                "\n " + str(xz_sha256_hash) + " " + str(xz_size) + " Packages.xz\n")
                 repo_settings = PackageLister.GetRepoSettings(self)
                 try:
                     if repo_settings['enable_gpg'].lower() == "true":
