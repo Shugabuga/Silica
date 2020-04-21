@@ -35,7 +35,7 @@ class DebianPackager(object):
         release_file += "Codename: ios\n"
         release_file += "Architectures: iphoneos-arm\n"
         release_file += "Components: main\n"
-        release_file += "Description: " + repo_settings['description'] + "\n"
+        release_file += "Description: " + repo_settings['description'].replace("\n\n", "\n .\n ").replace("\n", "\n ") + "\n"
 
         return release_file
 
@@ -67,7 +67,8 @@ class DebianPackager(object):
         # Optional properties
         try:
             if tweak_data['tagline']:
-                control_file += "Description: " + tweak_data['tagline'] + "\n"
+                # APT note: Multi-line descriptions are in the spec, but must be indicated with a leading space.
+                control_file += "Description: " + tweak_data['tagline'].replace("\n\n", "\n .\n ").replace("\n", "\n ") + "\n"
         except Exception:
             control_file += "Description: An awesome package!\n"
 
@@ -143,6 +144,11 @@ class DebianPackager(object):
                 control_file += "Breaks: " + tweak_data['breaks'] + "\n"
         except Exception:
             pass
+        try:
+            if tweak_data['tags']:
+                control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + ", compatible_max::ios" + tweak_data['works_max'] + ", " + tweak_data['tags'] + "\n"
+        except Exception:
+            control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + ", compatible_max::ios" + tweak_data['works_max'] + "\n"
 
         try:
             if tweak_data['developer']:
@@ -248,12 +254,19 @@ class DebianPackager(object):
                                                  "/silica_data/index.json", return_str)
                     pass
                 DpkgPy.extract(self, self.root + "temp/" + bundle_id + "/" + file_name, self.root + "temp/" + bundle_id)
-                os.remove(self.root + "temp/" + bundle_id + "/" + file_name)
-                os.remove(self.root + "temp/" + bundle_id + "/control")
+                try:
+                    os.remove(self.root + "temp/" + bundle_id + "/" + file_name)
+                except:
+                    pass
+                try:
+                    os.remove(self.root + "temp/" + bundle_id + "/control")
+                except:
+                    pass
         else:
             # TODO: Update DpkgPy to generate DEB files without dependencies (for improved win32 support)
             # If the version is consistent, then assume the package is unchanged. Don't regenerate it.
             try:
+                # Check for a DEB that already exists.
                 docs_deb = Dpkg(self.root + "docs/pkg/" + bundle_id + ".deb")
                 if docs_deb.version == recorded_version:
                     shutil.copy(self.root + "docs/pkg/" + bundle_id + ".deb", self.root + "temp/" + bundle_id + ".deb")
@@ -262,16 +275,17 @@ class DebianPackager(object):
                     # Sneaky swap.
                     call_result = call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
             except:
+                # Create the DEB again.
                 call_result = call(["dpkg-deb", "-b", "-Zgzip", self.root + "temp/" + bundle_id], cwd=self.root + "temp/")  # Compile DEB
             if call_result != 0:
                 # Did we run within WSL?
                 if "Microsoft" in platform.release():
                     PackageLister.ErrorReporter(self, "Platform Error!", "dpkg-deb failed to run. "
-                    "This is due to improper configuration of WSL. Please check the Silcia README for "
+                    "This is likely due to improper configuration of WSL. Please check the Silcia README for "
                     "how to set up WSL for dpkg-deb.")
                 else:
-                    PackageLister.ErrorReporter(self, "Platform Error!", "dpkg-deb failed to run. "
-                    "This may be due to a faulty system configuration.")
+                    PackageLister.ErrorReporter(self, "DPKG Error!", "dpkg-deb failed to run. "
+                    "This could be due to a faulty system configuration.")
 
     def CheckForSilicaData(self):
         """
@@ -393,6 +407,10 @@ class DebianPackager(object):
                             pass
                         try:
                             output['breaks'] = deb.headers['Breaks']
+                        except Exception:
+                            pass
+                        try:
+                            output['tags'] = deb.headers['Tag']
                         except Exception:
                             pass
                         try:

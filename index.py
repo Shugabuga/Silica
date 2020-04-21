@@ -12,7 +12,7 @@ from util.DepictionGenerator import DepictionGenerator
 from util.PackageLister import PackageLister
 from util.DebianPackager import DebianPackager
 
-version = "1.2.2"
+version = "1.2.3"
 
 
 def main():
@@ -26,10 +26,6 @@ def main():
 
     # Remove everything except for the DEBs.
     DepictionGenerator.CleanUp()
-    # try:
-    #     shutil.rmtree(root + "docs/")
-    # except Exception:
-    #     pass
 
     try:
         shutil.rmtree(root + "temp/")

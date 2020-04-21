@@ -98,17 +98,26 @@ class DepictionGenerator:
         with open(self.root + "Styles/tweak.mustache", "r") as content_file:
             index = content_file.read()
             replacements = DepictionGenerator.RenderDataHTML(self)
-            replacements['tweak_name'] = tweak_data['name']
-            replacements['tweak_developer'] = tweak_data['developer']['name']
-            replacements['tweak_compatibility'] = "iOS " + tweak_data['works_min'] + " to " + tweak_data['works_max']
-            replacements['tweak_version'] = tweak_data['version']
-            replacements['tweak_section'] = tweak_data['section']
-            replacements['tweak_bundle_id'] = tweak_data['bundle_id']
-            replacements['works_min'] = tweak_data['works_min']
-            replacements['works_max'] = tweak_data['works_max']
+            try:
+                replacements['tweak_name'] = tweak_data['name']
+            except:
+                 PackageLister.ErrorReporter(self, "Configuration Error!", "You are missing a package "
+                    "name in its index.json. Make sure this and other required properties are set.")
+            try:
+                replacements['tweak_developer'] = tweak_data['developer']['name']
+                replacements['tweak_compatibility'] = "iOS " + tweak_data['works_min'] + " to " + tweak_data['works_max']
+                replacements['tweak_version'] = tweak_data['version']
+                replacements['tweak_section'] = tweak_data['section']
+                replacements['tweak_bundle_id'] = tweak_data['bundle_id']
+                replacements['works_min'] = tweak_data['works_min']
+                replacements['works_max'] = tweak_data['works_max']
+                replacements['tweak_tagline'] = tweak_data['tagline']
+            except:
+                PackageLister.ErrorReporter(self, "Configuration Error!", "You are missing an essential "
+                    "property in " + tweak_data['name'] + "'s index.json. Make sure developer, version, section, "
+                    "bundle id, and tagline are set properly.")
             replacements['tweak_carousel'] = DepictionGenerator.ScreenshotCarousel(self, tweak_data)
             replacements['tweak_changelog'] = DepictionGenerator.RenderChangelogHTML(self, tweak_data)
-            replacements['tweak_tagline'] = tweak_data['tagline']
             replacements['footer'] = DepictionGenerator.RenderFooter(self)
             try:
                 if tweak_data['source'] != "":
