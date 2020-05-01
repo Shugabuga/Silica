@@ -12,7 +12,7 @@ from util.DepictionGenerator import DepictionGenerator
 from util.PackageLister import PackageLister
 from util.DebianPackager import DebianPackager
 
-version = "1.2.3"
+version = "1.2.2"
 
 
 def main():

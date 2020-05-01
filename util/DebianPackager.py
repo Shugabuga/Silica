@@ -226,16 +226,35 @@ class DebianPackager(object):
                                                 deb.version + "). What changed in this version?\n(Add multiple lines" +
                                                 " by using newline characters [\\n\\n] and use valid Markdown syntax): "
                                                 )
+
                         try:
-                            update_json['changelog'].append({
-                                "version": deb.version,
-                                "changes": changelog_entry
-                            })
+                            update_json['changelog'].append(
+                                {
+                                    "version": deb.version,
+                                    "changes": changelog_entry
+                                }
+                            )
                         except Exception:
-                            update_json['changelog'] = {
-                                "version": deb.version,
-                                "changes": changelog_entry
-                            }
+                            # Make it a list!
+                            update_json['changelog'] = []
+
+                            update_json['changelog'].append(
+                                {
+                                    "version": deb.version,
+                                    "changes": changelog_entry
+                                }
+                            )
+
+                        # A small note: We already created the variables that contain the changelogs and, to
+                        # make matters worse, all the web assets. The only way to mitigate this is to re-create the
+                        # tweak_release variable again, which wrecks a lot of things (ie runtime).
+                        # A Silica rewrite is required to properly fix this bug.
+                        print("\nA small warning about adding changelogs mid-run:\n")
+                        print("Due to some less-than-ideal design decisions with Silica, for the changelog to show")
+                        print("up, you're going to have to run Silica again. Yes, I know this is annoying, and a proper")
+                        print("solution is in the works, but the under-the-hood changes that'll be needed to fix")
+                        print("it properly would require a rewrite [see issue #22].\n")
+                        print("I'm deeply sorry about this.\n    - Shuga.\n")
 
                         # Get human-readable folder name
                         folder = PackageLister.BundleIdToDirName(self, bundle_id)
