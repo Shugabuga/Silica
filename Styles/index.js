@@ -42,5 +42,5 @@ function darkMode(isOled) {
     }
 }
 if (navigator.userAgent.toLowerCase().indexOf("dark") != -1) {
-    darkMode(navigator.userAgent.toLowerCase().indexOf("oled") != -1);
+    darkMode(navigator.userAgent.toLowerCase().indexOf("oled") != -1 || navigator.userAgent.toLowerCase().indexOf("pure-black") != -1);
 }
