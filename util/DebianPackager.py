@@ -144,11 +144,15 @@ class DebianPackager(object):
                 control_file += "Breaks: " + tweak_data['breaks'] + "\n"
         except Exception:
             pass
+        if 'works_max' in tweak_data:
+            compatible_max = ", compatible_max::ios" + tweak_data['works_max']
+        else:
+            compatible_max = ""
         try:
             if tweak_data['tags']:
-                control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + ", compatible_max::ios" + tweak_data['works_max'] + ", " + tweak_data['tags'] + "\n"
+                control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + ", " + tweak_data['tags'] + "\n"
         except Exception:
-            control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + ", compatible_max::ios" + tweak_data['works_max'] + "\n"
+            control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + compatible_max + "\n"
 
         try:
             if tweak_data['developer']:
