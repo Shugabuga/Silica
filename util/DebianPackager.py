@@ -277,10 +277,18 @@ class DebianPackager(object):
                     os.remove(self.root + "temp/" + bundle_id + "/" + file_name)
                 except:
                     pass
-                try:
-                    os.remove(self.root + "temp/" + bundle_id + "/control")
-                except:
-                    pass
+                
+                # remove the possible files that might be from DEBIAN
+                # this way they don't get installed to root
+                # this list is taken right from the iphonedevwiki
+                # see https://iphonedevwiki.net/index.php/Packaging#DEBIAN_folder
+                debian_file_names = ["control", "preinst", "postinst", "extrainst_", "prerm", "postrm"]
+
+                for debian_file_name in debian_file_names:
+                    try:
+                        os.remove(self.root + "temp/" + bundle_id + "/" + debian_file_name)
+                    except:
+                        pass
         else:
             # TODO: Update DpkgPy to generate DEB files without dependencies (for improved win32 support)
             # If the version is consistent, then assume the package is unchanged. Don't regenerate it.
