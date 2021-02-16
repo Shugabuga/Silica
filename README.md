@@ -2,7 +2,7 @@
 
 **Silica** is a static repo generator for jailbroken iOS devices developed by [Shuga](https://shuga.co) and supported by [Ignition](https://ignition.fun).
 
-The goal behind Silica is simple: make it as easy as possible to make a personal repo that plays nicely with both Cydia and Sileo. Sileo generates "static" repos, allowing for repos to be hosted on GitHub Pages for free.
+The goal behind Silica is simple: make it as easy as possible to make a personal repo that plays nicely with both Cydia and Sileo. Silica generates "static" repos, allowing for repos to be hosted on GitHub Pages for free.
 
 ## Getting Started
 
