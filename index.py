@@ -2,7 +2,6 @@
 
 # Import stuff.
 import shutil  # Used to copy files
-import os  # Used for identifying project root
 from pathlib import Path  # Identify if folder exists.
 import re  # Regular expressions
 import json  # API endpoint generation
@@ -22,7 +21,7 @@ def main():
     # Step 0: Clean up "docs" and "temp" folder
     ###########
 
-    root = os.path.dirname(os.path.abspath(__file__))
+    root = Path(Path(__file__)).parent
 
     # Remove everything except for the DEBs.
     DepictionGenerator.CleanUp()
