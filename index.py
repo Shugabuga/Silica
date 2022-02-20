@@ -22,13 +22,13 @@ def main():
     # Step 0: Clean up "docs" and "temp" folder
     ###########
 
-    root = os.path.dirname(os.path.abspath(__file__)) + "/"
+    root = os.path.dirname(os.path.abspath(__file__))
 
     # Remove everything except for the DEBs.
     DepictionGenerator.CleanUp()
 
     try:
-        shutil.rmtree(root + "temp/")
+        shutil.rmtree(f"{root}/temp/")
     except Exception:
         pass
 
@@ -53,7 +53,7 @@ def main():
 
     # Create folder for each tweak
     for tweak in tweak_release:
-        PackageLister.CreateFolder("docs/assets/" + tweak['bundle_id'])
+        PackageLister.CreateFolder(f"docs/assets/{tweak['bundle_id']}")
 
     ###########
     # Step 2: Copy all images
@@ -62,54 +62,54 @@ def main():
         package_bundle_id = PackageLister.DirNameToBundleID(package_name)
 
         try:
-            shutil.copy(root + "Packages/" + package_name + "/silica_data/icon.png",
-                        root + "docs/assets/" + package_bundle_id + "/icon.png")
+            shutil.copy(f"{root}/Packages/{package_name}/silica_data/icon.png",
+                        f"{root}/docs/assets/{package_bundle_id}/icon.png")
         except Exception:
             category = PackageLister.ResolveCategory(tweak_release, package_bundle_id)
             category = re.sub(r'\([^)]*\)', '', category).strip()
             try:
-                shutil.copy(root + "Styles/Generic/Icon/" + category + ".png",
-                            root + "docs/assets/" + package_bundle_id + "/icon.png")
+                shutil.copy(f"{root}/Styles/Generic/Icon/{category}.png",
+                            f"{root}/docs/assets/{package_bundle_id}/icon.png")
             except Exception:
                 try:
-                    shutil.copy(root + "Styles/Generic/Icon/Generic.png",
-                                root + "docs/assets/" + package_bundle_id + "/icon.png")
+                    shutil.copy(f"{root}/Styles/Generic/Icon/Generic.png",
+                                f"{root}/docs/assets/{package_bundle_id}/icon.png")
                 except Exception:
                     PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root +
-                        "Styles/Generic/Icon/Generic.png. Please place an icon here to be the repo's default.")
+                        "/Styles/Generic/Icon/Generic.png. Please place an icon here to be the repo's default.")
 
         try:
-            shutil.copy(root + "Packages/" + package_name + "/silica_data/banner.png",
-                        root + "docs/assets/" + package_bundle_id + "/banner.png")
+            shutil.copy(f"{root}/Packages/{package_name}/silica_data/banner.png",
+                        f"{root}/docs/assets/{package_bundle_id}/banner.png")
         except Exception:
             category = PackageLister.ResolveCategory(tweak_release, package_bundle_id)
             category = re.sub(r'\([^)]*\)', '', category).strip()
             try:
-                shutil.copy(root + "Styles/Generic/Banner/" + category + ".png",
-                            root + "docs/assets/" + package_bundle_id + "/banner.png")
+                shutil.copy(f"{root}/Styles/Generic/Banner/{category}.png",
+                            f"{root}/docs/assets/{package_bundle_id}/banner.png")
             except Exception:
                 try:
-                    shutil.copy(root + "Styles/Generic/Banner/Generic.png",
-                               root + "docs/assets/" + package_bundle_id + "/banner.png")
+                    shutil.copy(f"{root}/Styles/Generic/Banner/Generic.png",
+                                f"{root}/docs/assets/{package_bundle_id}/banner.png")
                 except Exception:
                     PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root +
-                        "Styles/Generic/Banner/Generic.png. Please place a banner here to be the repo's default.")
+                        "/Styles/Generic/Banner/Generic.png. Please place a banner here to be the repo's default.")
 
         try:
-            shutil.copy(root + "Packages/" + package_name + "/silica_data/description.md",
-                        root + "docs/assets/" + package_bundle_id + "/description.md")
+            shutil.copy(f"{root}/Packages/{package_name}/silica_data/description.md",
+                        f"{root}/docs/assets/{package_bundle_id}/description.md")
         except Exception:
             pass
 
         try:
-            shutil.copytree(root + "Packages/" + package_name + "/silica_data/screenshots",
-                            root + "docs/assets/" + package_bundle_id + "/screenshot")
+            shutil.copytree(f"{root}/Packages/{package_name}/silica_data/screenshots",
+                            f"{root}/docs/assets/{package_bundle_id}/screenshot")
         except Exception:
             pass
     try:
-        shutil.copy(root + "Styles/icon.png", root + "docs/CydiaIcon.png")
+        shutil.copy(f"{root}/Styles/icon.png", f"{root}/docs/CydiaIcon.png")
     except Exception:
-        PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root + "Styles/icon.png. "
+        PackageLister.ErrorReporter("Configuration Error!", "You are missing a file at " + root + "/Styles/icon.png. "
             "Please add a PNG here to act as the repo's icon.")
 
     ###########
@@ -117,8 +117,8 @@ def main():
     ###########
 
     # Copy CSS and JS over
-    shutil.copy(root + "Styles/index.css", root + "docs/web/index.css")
-    shutil.copy(root + "Styles/index.js", root + "docs/web/index.js")
+    shutil.copy(f"{root}/Styles/index.css", f"{root}/docs/web/index.css")
+    shutil.copy(f"{root}/Styles/index.js", f"{root}/docs/web/index.js")
 
     # Generate index.html
     index_html = DepictionGenerator.RenderIndexHTML()
@@ -128,7 +128,7 @@ def main():
     # Generate per-tweak depictions
     for tweak_data in tweak_release:
         tweak_html = DepictionGenerator.RenderPackageHTML(tweak_data)
-        PackageLister.CreateFile("docs/depiction/web/" + tweak_data['bundle_id'] + ".html", tweak_html)
+        PackageLister.CreateFile(f"docs/depiction/web/{tweak_data['bundle_id']}.html", tweak_html)
 
     if "github.io" not in repo_settings['cname'].lower():
         PackageLister.CreateFile("docs/CNAME", repo_settings['cname'])
@@ -144,9 +144,9 @@ def main():
     # Generate per-tweak depictions
     for tweak_data in tweak_release:
         tweak_json = DepictionGenerator.RenderPackageNative(tweak_data)
-        PackageLister.CreateFile("docs/depiction/native/" + tweak_data['bundle_id'] + ".json", tweak_json)
+        PackageLister.CreateFile(f"docs/depiction/native/{tweak_data['bundle_id']}.json", tweak_json)
         help_depiction = DepictionGenerator.RenderNativeHelp(tweak_data)
-        PackageLister.CreateFile("docs/depiction/native/help/" + tweak_data['bundle_id'] + ".json", help_depiction)
+        PackageLister.CreateFile(f"docs/depiction/native/help/{tweak_data['bundle_id']}.json", help_depiction)
 
     ###########
     # Step 5: Generate Release file from settings.json.
@@ -164,20 +164,19 @@ def main():
     for package_name in PackageLister.ListDirNames():
         bundle_id = PackageLister.DirNameToBundleID(package_name)
         try:
-            shutil.copytree(root + "Packages/" + package_name, root + "temp/" + bundle_id)
-            shutil.rmtree(root + "temp/" + bundle_id + "/silica_data")
+            shutil.copytree(f"{root}/Packages/{package_name}", f"{root}/temp/{bundle_id}")
+            shutil.rmtree(f"{root}/temp/{bundle_id}/silica_data")
         except Exception:
             try:
-                shutil.rmtree(root + "temp/" + bundle_id + "/silica_data")
+                shutil.rmtree(f"{root}/temp/{bundle_id}/silica_data")
             except Exception:
                 pass
 
-        script_check = Path(root + "Packages/" + package_name + "/silica_data/scripts/")
+        script_check = Path(f"{root}/Packages/{package_name}/silica_data/scripts/")
         if script_check.is_dir():
-            shutil.copytree(root + "Packages/" + package_name + "/silica_data/scripts", root + "temp/" + bundle_id
-                            + "/DEBIAN")
+            shutil.copytree(f"{root}/Packages/{package_name}/silica_data/scripts", f"{root}/temp/{bundle_id}/DEBIAN")
         else:
-            PackageLister.CreateFolder("temp/" + bundle_id + "/DEBIAN")
+            PackageLister.CreateFolder(f"temp/{bundle_id}/DEBIAN")
 
     ###########
     # Step 7: Generate CONTROL and DEB files and move them to docs/
@@ -185,10 +184,9 @@ def main():
 
     for tweak_data in tweak_release:
         control_file = DebianPackager.CompileControl(tweak_data, repo_settings)
-        PackageLister.CreateFile("temp/" + tweak_data['bundle_id'] + "/DEBIAN/control", control_file)
+        PackageLister.CreateFile(f"temp/{tweak_data['bundle_id']}/DEBIAN/control", control_file)
         DebianPackager.CreateDEB(tweak_data['bundle_id'], tweak_data['version'])
-        shutil.copy(root + "temp/" + tweak_data['bundle_id'] + ".deb", root + "docs/pkg/" + tweak_data['bundle_id']
-                    + ".deb")
+        shutil.copy(f"{root}/temp/{tweak_data['bundle_id']}.deb", f"{root}/docs/pkg/{tweak_data['bundle_id']}.deb")
 
     ###########
     # Step 8: Generate Package file and hash/sign the Release file.
@@ -209,7 +207,7 @@ def main():
     # Step 10: Push to GitHub
     ###########
 
-    shutil.rmtree(root + "temp/")  # Clean-up the now-unneeded temp folder.
+    shutil.rmtree(f"{root}/temp/")  # Clean-up the now-unneeded temp folder.
 
     try:
         if repo_settings['automatic_git'].lower() == "true":
