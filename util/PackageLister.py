@@ -1,5 +1,6 @@
 import json  # Used to parse various JSON files
-import os  # Used to navigate files so we know what tweak folders exist.
+
+from pathlib import Path # Used to navigate files so we know what tweak folders exist.
 from PIL import Image  # Used to get image screenshot size.
 
 
@@ -12,7 +13,7 @@ class PackageLister:
     def __init__(self, version):
         super(PackageLister, self).__init__()
         self.version = version
-        self.root = os.path.dirname(os.path.abspath(__file__)) + "/../"
+        self.root = f"{Path(Path(__file__)).parent}/.."
 
     def CreateFile(self, path, contents):
         """
@@ -21,7 +22,7 @@ class PackageLister:
         String path: A file location to create a file at. Is relative to project root.
         String contents: The contents of the file to be created.
         """
-        with open(self.root + path, "w") as text_file:
+        with open(f"{self.root}/{path}", "w") as text_file:
             text_file.write(contents)
 
     def CreateFolder(self, path):
@@ -30,8 +31,8 @@ class PackageLister:
 
         String path: A file location to create a folder at. Is relative to project root.
         """
-        if not os.path.exists(self.root + path):
-            os.makedirs(self.root + path)
+        if not Path(f"{self.root}/{path}").exists():
+            Path(f"{self.root}/{path}").mkdir()
         else:
             pass
 
@@ -40,7 +41,7 @@ class PackageLister:
         List the file names for package entries.
         """
         package_list = []
-        for folder in os.listdir(self.root + "Packages"):
+        for folder in Path(f"{self.root}/Packages").iterdir():
             if folder.lower() != ".ds_store":
                 package_list.append(folder)
         return package_list
@@ -52,12 +53,12 @@ class PackageLister:
         """
         tweak_release = []
         for tweakEntry in PackageLister.ListDirNames(self):
-            with open(self.root + "Packages/" + tweakEntry + "/silica_data/index.json", "r") as content_file:
+            with open(f"{self.root}/Packages/{tweakEntry}/silica_data/index.json", "r") as content_file:
                 try:
                     data = json.load(content_file)
                 except Exception:
                     PackageLister.ErrorReporter(self, "Configuration Error!", "The package configuration file at \"" +
-                        self.root + "Packages/" + tweakEntry + "/silica_data/index.json\" is malformatted. Please check"
+                        self.root + f"/Packages/{tweakEntry}/silica_data/index.json\" is malformatted. Please check"
                         " for any syntax errors in a JSON linter and run Silica again.")
                 tweak_release.append(data)
         return tweak_release
@@ -70,7 +71,7 @@ class PackageLister:
         """
         image_list = []
         try:
-            for folder in os.listdir(self.root + "docs/assets/" + tweak_data['bundle_id'] + "/screenshot/"):
+            for folder in Path(f"{self.root}/docs/assets/{tweak_data.get('bundle_id')}/screenshot/").iterdir():
                 if folder.lower() != ".ds_store":
                     image_list.append(folder)
         except:
@@ -84,9 +85,9 @@ class PackageLister:
         Object tweak_data: A single index of a "tweak release" object.
         """
         try:
-            for folder in os.listdir(self.root + "docs/assets/" + tweak_data['bundle_id'] + "/screenshot/"):
+            for folder in Path(f"{self.root}/docs/assets/{tweak_data.get('bundle_id')}/screenshot/").iterdir():
                 if folder.lower() != ".ds_store":
-                    with Image.open(self.root + "docs/assets/" + tweak_data['bundle_id'] + "/screenshot/" + folder) as img:
+                    with Image.open(f"{self.root}/docs/assets/{tweak_data['bundle_id']}/screenshot/{folder}") as img:
                         width, height = img.size
                         #  Make sure it's not too big.
                         #  If height > width, make height 300, width proportional.
@@ -108,9 +109,9 @@ class PackageLister:
         String package_name: The name of a folder in Packages/ that holds tweak information.
         """
 
-        with open(self.root + "Packages/" + package_name + "/silica_data/index.json", "r") as content_file:
+        with open(f"{self.root}/Packages/{package_name}/silica_data/index.json", "r") as content_file:
             data = json.load(content_file)
-            return data['bundle_id']
+            return data.get('bundle_id')
 
     def BundleIdToDirName(self, bundle_id):
         """
@@ -125,7 +126,7 @@ class PackageLister:
         return None
                 
     def GetRepoSettings(self):
-        with open(self.root + "Styles/settings.json", "r") as content_file:
+        with open(f"{self.root}/Styles/settings.json", "r") as content_file:
             try:
                 return json.load(content_file)
             except Exception:
@@ -141,8 +142,8 @@ class PackageLister:
         Object repo_settings: An object of repo settings.
         """
         try:
-            if repo_settings['subfolder'] != "":
-                subfolder = "/" + repo_settings['subfolder']
+            if repo_settings.get('subfolder') != "":
+                subfolder = f"/{repo_settings.get('subfolder')}"
         except Exception:
             subfolder = ""
         return subfolder
@@ -155,8 +156,8 @@ class PackageLister:
         String bundle_id: The bundle ID of the tweak.
         """
         for tweak in tweak_release:
-            if tweak['bundle_id'] == bundle_id:
-                return tweak['section']
+            if tweak.get('bundle_id') == bundle_id:
+                return tweak.get('section')
 
     def ResolveVersion(self, tweak_release, bundle_id):
         """
@@ -166,9 +167,9 @@ class PackageLister:
         String bundle_id: The bundle ID of the tweak.
         """
         for tweak in tweak_release:
-            if tweak['bundle_id'] == bundle_id:
-                return tweak['version']
+            if tweak.get('bundle_id') == bundle_id:
+                return tweak.get('version')
 
     def ErrorReporter(self, title, message):
-        print('\033[91m- {0} -\n{1}\033[0m'.format(title, message))
+        print(f'\033[91m- {title} -\n{message}\033[0m')
         quit()
