@@ -11,9 +11,9 @@ Silica, by default, is relatively straight-forward to configure. This tutorial i
 - `pip3` (for installing Python dependencies)
 - [Homebrew](https://brew.sh/) (macOS users only)
 
-Silica is only officially supported on macOS and Debian-based OSes at the moment. We can not guarantee Windows support at this time. I'm sure you could get this working on other Linux distributions with a bit of tweaking, too. `btw i don't use arch`
+Silica is only officially supported on macOS and Debian-based OSes at the moment. We can not guarantee Windows support at this time. I'm sure you could get this working on other Linux distributions with a bit of tweaking, too. [I use Arch btw.](https://www.reddit.com/r/linuxmemes/comments/riz1pd/bye_windows_key_hello_arch_btw/)
 
-### Silica for Windows Subsystem for Linix (WSL)
+### Silica for Windows Subsystem for Linux (WSL)
 
 **If you are not using Windows, skip down to Dependencies.**
 
@@ -22,7 +22,7 @@ As a result, you need to set your machine up WSL and Ubuntu for Windows, which w
 programs to run in Windows via a terminal.
 
 #### 1. Set up WSL
-Please follow [this official tutorial](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Please use Ubuntu for ideal results.
+Please follow [this official tutorial](https://docs.microsoft.com/en-us/windows/wsl/install). Please use Ubuntu for ideal results.
 
 #### 2. Setting up WSL for `dpkg-deb`
 Due to how `dpkg-deb` handles permissions, we need to change some settings to make things work.
