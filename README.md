@@ -13,7 +13,7 @@ Silica, by default, is relatively straight-forward to configure. This tutorial i
 
 Silica is only officially supported on macOS and Debian-based OSes at the moment. We can not guarantee Windows support at this time. I'm sure you could get this working on other Linux distributions with a bit of tweaking, too. `btw i don't use arch`
 
-### Silica for Windows Subsystem for Linix (WSL)
+### Silica for Windows Subsystem for Linux (WSL)
 
 **If you are not using Windows, skip down to Dependencies.**
 
