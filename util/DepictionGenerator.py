@@ -104,13 +104,17 @@ class DepictionGenerator:
                  PackageLister.ErrorReporter(self, "Configuration Error!", "You are missing a package "
                     "name in its index.json. Make sure this and other required properties are set.")
             try:
+                if 'works_max' in tweak_data:
+                    works_max = " to " + tweak_data['works_max']
+                    replacements['works_max'] = tweak_data['works_max']
+                else:
+                    works_max = ""
                 replacements['tweak_developer'] = tweak_data['developer']['name']
-                replacements['tweak_compatibility'] = "iOS " + tweak_data['works_min'] + " to " + tweak_data['works_max']
+                replacements['tweak_compatibility'] = "iOS " + tweak_data['works_min'] + works_max
                 replacements['tweak_version'] = tweak_data['version']
                 replacements['tweak_section'] = tweak_data['section']
                 replacements['tweak_bundle_id'] = tweak_data['bundle_id']
                 replacements['works_min'] = tweak_data['works_min']
-                replacements['works_max'] = tweak_data['works_max']
                 replacements['tweak_tagline'] = tweak_data['tagline']
             except:
                 PackageLister.ErrorReporter(self, "Configuration Error!", "You are missing an essential "
@@ -190,6 +194,7 @@ class DepictionGenerator:
 
         changelog = DepictionGenerator.RenderNativeChangelog(self, tweak_data)
         screenshot_size = PackageLister.GetScreenshotSize(self, tweak_data)
+        works_max = " to " + tweak_data['works_max'] if 'works_max' in tweak_data else ""
 
         depiction = {
             "minVersion": "0.1",
@@ -230,7 +235,7 @@ class DepictionGenerator:
                         {
                             "class": "DepictionTableTextView",
                             "title": "Compatibility",
-                            "text": "iOS " + tweak_data['works_min'] + " to " + tweak_data['works_max']
+                            "text": "iOS " + tweak_data['works_min'] + works_max
                         },
                         {
                             "class": "DepictionTableTextView",

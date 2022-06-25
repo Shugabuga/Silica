@@ -6,7 +6,7 @@ function compatible(works_min, works_max, tweak_compatibility) {
     if (currentiOS < works_min) {
         el.innerHTML = "Your version of iOS is too old for this package. This package works on " + tweak_compatibility + ".";
         el.classList.add("red")
-    } else if(currentiOS > works_max) {
+    } else if(works_max != "." && currentiOS > works_max) {
         el.innerHTML = "Your version of iOS is too new for this package. This package works on " + tweak_compatibility + ".";
         el.classList.add("red")
     } else if(String(currentiOS) != "NaN") {
