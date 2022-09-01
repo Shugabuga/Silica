@@ -438,8 +438,14 @@ class DebianPackager(object):
                             pass
                         # These still need data.
                         output['works_min'] = input("What is the lowest iOS version the package works on? ")
+                        if output['works_min'] == "":
+                            output['works_min'] = "13.0"
                         output['works_max'] = input("What is the highest iOS version the package works on? ")
+                        if output['works_max'] == "":
+                            output['works_max'] = "14.5"
                         output['featured'] = input("Should this package be featured on your repo? (true/false) ")
+                        if output['featured'] == "":
+                            output['featured'] = "false"
                         set_tint = input("What would you like this package's tint color to be? To keep it at"
                                          " the default, leave this blank: ")
                         if set_tint != "":
