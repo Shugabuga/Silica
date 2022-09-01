@@ -367,20 +367,29 @@ class DebianPackager(object):
                         except Exception:
                             pass
                         try:
-                            remove_email_regex = re.compile('<.*?>')
+                            remove_email_regex = re.compile(' <.*?>')
                             output['developer']['name'] = remove_email_regex.sub("", deb.headers['Author'])
                         except Exception:
                             output['developer']['name'] = input("Who originally made this package? This may be"
                                                                 " your name. ")
-                        output['developer']['email'] = input("What is the original author's email address? ")
                         try:
-                            remove_email_regex = re.compile('<.*?>')
+                            get_email_regex = re.compile('(?<=<)\w+@\w+\.\w+(?=>)')
+                            output['developer']['email'] = get_email_regex.findall(deb.headers['Author'])[0]
+                        except Exception:
+                            output['developer']['email'] = input("What is the original author's email address? ")
+                        try:
+                            remove_email_regex = re.compile(' <.*?>')
                             output['maintainer']['name'] = remove_email_regex.sub("", deb.headers['Maintainer'])
                         except Exception:
                             output['maintainer']['name'] = input("Who maintains this package now?"
                                                                  " This is likely your name. ")
-                        output['maintainer']['email'] = input("What is the maintainer's email address? ")
                         try:
+                            get_email_regex = re.compile('(?<=<)\w+@\w+\.\w+(?=>)')
+                            output['maintainer']['email'] = get_email_regex.findall(deb.headers['Maintainer'])[0]
+                        except Exception:
+                            output['maintainer']['email'] = input("What is the maintainer's email address? ")
+                        try:
+                            remove_email_regex = re.compile(' <.*?>')
                             output['sponsor']['name'] = remove_email_regex.sub("", deb.headers['Sponsor'])
                         except Exception:
                             pass
@@ -438,8 +447,14 @@ class DebianPackager(object):
                             pass
                         # These still need data.
                         output['works_min'] = input("What is the lowest iOS version the package works on? ")
+                        if output['works_min'] == "":
+                            output['works_min'] = "13.0"
                         output['works_max'] = input("What is the highest iOS version the package works on? ")
+                        if output['works_max'] == "":
+                            output['works_max'] = "14.5"
                         output['featured'] = input("Should this package be featured on your repo? (true/false) ")
+                        if output['featured'] == "":
+                            output['featured'] = "false"
                         set_tint = input("What would you like this package's tint color to be? To keep it at"
                                          " the default, leave this blank: ")
                         if set_tint != "":
@@ -450,7 +465,7 @@ class DebianPackager(object):
                         DpkgPy.control_extract(self, deb_path, self.root + "Packages/" + folder +
                                                "/silica_data/scripts/")
                         # Remove the Control; it's not needed.
-                        os.remove(self.root + "Packages/" + folder + "/silica_data/scripts/Control")
+                        os.remove(self.root + "Packages/" + folder + "/silica_data/scripts/control")
                         if not os.listdir(self.root + "Packages/" + folder + "/silica_data/scripts/"):
                             os.rmdir(self.root + "Packages/" + folder + "/silica_data/scripts/")
                     else:
