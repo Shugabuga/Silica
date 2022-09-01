@@ -367,20 +367,29 @@ class DebianPackager(object):
                         except Exception:
                             pass
                         try:
-                            remove_email_regex = re.compile('<.*?>')
+                            remove_email_regex = re.compile(' <.*?>')
                             output['developer']['name'] = remove_email_regex.sub("", deb.headers['Author'])
                         except Exception:
                             output['developer']['name'] = input("Who originally made this package? This may be"
                                                                 " your name. ")
-                        output['developer']['email'] = input("What is the original author's email address? ")
                         try:
-                            remove_email_regex = re.compile('<.*?>')
+                            get_email_regex = re.compile('(?<=<)\w+@\w+\.\w+(?=>)')
+                            output['developer']['email'] = get_email_regex.findall(deb.headers['Author'])[0]
+                        except Exception:
+                            output['developer']['email'] = input("What is the original author's email address? ")
+                        try:
+                            remove_email_regex = re.compile(' <.*?>')
                             output['maintainer']['name'] = remove_email_regex.sub("", deb.headers['Maintainer'])
                         except Exception:
                             output['maintainer']['name'] = input("Who maintains this package now?"
                                                                  " This is likely your name. ")
-                        output['maintainer']['email'] = input("What is the maintainer's email address? ")
                         try:
+                            get_email_regex = re.compile('(?<=<)\w+@\w+\.\w+(?=>)')
+                            output['maintainer']['email'] = get_email_regex.findall(deb.headers['Maintainer'])[0]
+                        except Exception:
+                            output['maintainer']['email'] = input("What is the maintainer's email address? ")
+                        try:
+                            remove_email_regex = re.compile(' <.*?>')
                             output['sponsor']['name'] = remove_email_regex.sub("", deb.headers['Sponsor'])
                         except Exception:
                             pass
