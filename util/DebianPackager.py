@@ -450,7 +450,7 @@ class DebianPackager(object):
                         DpkgPy.control_extract(self, deb_path, self.root + "Packages/" + folder +
                                                "/silica_data/scripts/")
                         # Remove the Control; it's not needed.
-                        os.remove(self.root + "Packages/" + folder + "/silica_data/scripts/Control")
+                        os.remove(self.root + "Packages/" + folder + "/silica_data/scripts/control")
                         if not os.listdir(self.root + "Packages/" + folder + "/silica_data/scripts/"):
                             os.rmdir(self.root + "Packages/" + folder + "/silica_data/scripts/")
                     else:
