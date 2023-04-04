@@ -5,3 +5,4 @@ mistune
 arpy
 Pillow
 pydpkg
+pyzstd

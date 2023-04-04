@@ -1,6 +1,9 @@
-import arpy
+import io
+import lzma
 import tarfile
-
+import arpy
+import os
+import pyzstd
 
 class DpkgPy:
     """
@@ -22,30 +25,30 @@ class DpkgPy:
         try:
             root_ar = arpy.Archive(input_path)
             root_ar.read_all_headers()
-            try:
-                data_bin = root_ar.archived_files[b'data.tar.gz']
-                data_tar = tarfile.open(fileobj=data_bin)
-                data_tar.extractall(output_path)
-            except Exception:
-                try:
-                    data_theos_bin = root_ar.archived_files[b'data.tar.lzma']
-                    data_theos_bin.seekable = lambda: True
-                    data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
-                    data_theos_tar.extractall(output_path)
-                except Exception:
-                    try:
-                        data_theos_bin = root_ar.archived_files[b'data.tar.xz']
-                        data_theos_bin.seekable = lambda: True
-                        data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
-                        data_theos_tar.extractall(output_path)
-                    except Exception:
-                        print("\033[91m- DEB Extraction Error -\n"
-                              "The DEB file inserted for one of your packages is invalid. Please report this as a bug "
-                              "and attach the DEB file at \"" + output_path + "\".\033[0m")
+            
+            data_bin_ext = None
 
-            control_bin = root_ar.archived_files[b'control.tar.gz']
-            control_tar = tarfile.open(fileobj=control_bin)
-            control_tar.extractall(output_path)
+            for ext in ['.gz', '.lzma', '.xz', '.zst']:
+                if b'data.tar' + ext.encode() in root_ar.archived_files:
+                    data_bin_ext = ext
+                    break
+
+            if data_bin_ext is None:
+                raise ValueError("Unsupported data_bin format")
+
+            data_bin = root_ar.archived_files[b'data.tar' + data_bin_ext.encode()]
+
+            if data_bin_ext == '.gz':
+                data_tar = tarfile.open(fileobj=data_bin)
+            elif data_bin_ext == '.lzma' or data_bin_ext == '.xz':
+                data_data = lzma.decompress(data_bin.read())
+                data_tar = tarfile.open(fileobj=io.BytesIO(data_data))
+            elif data_bin_ext == '.zst':
+                data_data = pyzstd.decompress(data_bin.read())
+                data_tar = tarfile.open(fileobj=io.BytesIO(data_data))
+
+            data_tar.extractall(output_path)
+            print(output_path)
             return True
         except Exception:
             return False
@@ -60,8 +63,28 @@ class DpkgPy:
         try:
             root_ar = arpy.Archive(input_path)
             root_ar.read_all_headers()
-            control_bin = root_ar.archived_files[b'control.tar.gz']
-            control_tar = tarfile.open(fileobj=control_bin)
+            
+            control_bin_ext = None
+
+            for ext in ['.gz', '.lzma', '.xz', '.zst']:
+                if b'control.tar' + ext.encode() in root_ar.archived_files:
+                    control_bin_ext = ext
+                    break
+
+            if control_bin_ext is None:
+                raise ValueError("Unsupported control_bin format")
+
+            control_bin = root_ar.archived_files[b'control.tar' + control_bin_ext.encode()]
+
+            if control_bin_ext == '.gz':
+                control_tar = tarfile.open(fileobj=control_bin)
+            elif control_bin_ext == '.lzma' or control_bin_ext == '.xz':
+                control_data = lzma.decompress(control_bin.read())
+                control_tar = tarfile.open(fileobj=io.BytesIO(control_data))
+            elif control_bin_ext == '.zst':
+                control_data = pyzstd.decompress(control_bin.read())
+                control_tar = tarfile.open(fileobj=io.BytesIO(control_data))
+
             control_tar.extractall(output_path)
             return True
         except Exception:
