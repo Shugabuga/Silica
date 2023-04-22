@@ -6,7 +6,7 @@ import mistune  # Markdown parser
 import random  # If no packages are featured, feature a random one.
 from subprocess import check_output  # Get upstream URL for API
 from util.PackageLister import PackageLister
-
+import re
 
 class DepictionGenerator:
     """
@@ -446,6 +446,7 @@ class DepictionGenerator:
         repo_settings = PackageLister.GetRepoSettings(self)
         screenshot_div = "<div class=\"scroll_view\">"
         image_list = self.PackageLister.GetScreenshots(tweak_data)
+        image_list.sort(key=lambda f: int(re.sub('\D', '', f)))
         if (len(image_list) > 0):
             for image in image_list:
                 screenshot_div += '''<img class="img_card" src="../../assets/{1}/screenshot/{2}">'''.format(
