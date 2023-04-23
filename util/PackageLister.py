@@ -1,7 +1,7 @@
 import json  # Used to parse various JSON files
 import os  # Used to navigate files so we know what tweak folders exist.
 from PIL import Image  # Used to get image screenshot size.
-
+import re
 
 class PackageLister:
     """
@@ -75,6 +75,7 @@ class PackageLister:
                     image_list.append(folder)
         except:
             pass
+        image_list.sort(key=lambda f: int(re.sub('\D', '', f)))
         return image_list
 
     def GetScreenshotSize(self, tweak_data):

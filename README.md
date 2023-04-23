@@ -1,8 +1,15 @@
-# Silica
+# Silica (Rootless)
 
 **Silica** is a static repo generator for jailbroken iOS devices developed by [Shuga](https://shuga.co) and supported by [Ignition](https://ignition.fun).
 
 The goal behind Silica is simple: make it as easy as possible to make a personal repo that plays nicely with both Cydia and Sileo. Silica generates "static" repos, allowing for repos to be hosted on GitHub Pages for free.
+
+## Rootless changes
+
+Developers, you must add your architecture to your packages in the settings.json file.
+Even if your package does not support rootless, you must add the architecture.
+Rootless = ``` "architecture": "iphoneos-arm64" ```
+Rootful = ``` "architecture": "iphoneos-arm" ```
 
 ## Getting Started
 
@@ -224,11 +231,12 @@ If you happen to have `git` installed on your computer and run `git clone https:
 ## Documentation
 
 ### `index.json`
-Here is a comprehensive example of an `index.json` file. These reside in the package's `silica_data` folder and is required for the repo to properly compile. You **must** include the `bundle_id`, `name`, `version`, `tagline`, `section`, `works_min`, and `works_max`. All other values are optional, but are recommended (if applicable).
+Here is a comprehensive example of an `index.json` file. These reside in the package's `silica_data` folder and is required for the repo to properly compile. You **must** include the `bundle_id`, `architecture`, `name`, `version`, `tagline`, `section`, `works_min`, and `works_max`. All other values are optional, but are recommended (if applicable).
 
 ```json
 {
     "bundle_id": "co.shuga.elementary-lite",
+    "architecture": "iphoneos-arm64",
     "name": "Elementary Lite",
     "version": "1.1.2-beta",
     "tagline": "A simplistic, glyph-based theme.",
