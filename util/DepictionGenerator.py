@@ -112,6 +112,7 @@ class DepictionGenerator:
                 replacements['works_min'] = tweak_data['works_min']
                 replacements['works_max'] = tweak_data['works_max']
                 replacements['tweak_tagline'] = tweak_data['tagline']
+                replacements['architecture'] = tweak_data['architecture']
             except:
                 PackageLister.ErrorReporter(self, "Configuration Error!", "You are missing an essential "
                     "property in " + tweak_data['name'] + "'s index.json. Make sure developer, version, section, "
