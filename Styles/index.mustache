@@ -19,7 +19,10 @@
 <body>
     <div class="body">
         <h1 class="header left_float">{{repo_name}}</h1>
-        <a class="header right_float add_sileo tint" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://{{repo_url}}">+</a>
+        <div class="header right_float add_repo">
+            <a class="add_sileo tint" href="sileo://source/https://{{repo_url}}/">+ Sileo</a>
+            <a class="add_sileo tint" href="zbra://sources/add/https://{{repo_url}}/">+ Zebra</a>
+        </div>
         <div class="scroll_view">
             {{{repo_carousel}}}
         </div>

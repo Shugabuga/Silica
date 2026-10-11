@@ -1,5 +1,25 @@
 import arpy
+import os
 import tarfile
+import lzma
+
+try:
+    import zstandard as zstd
+except Exception:
+    zstd = None
+
+
+def _extract_control_scripts(control_tar, output_path):
+    """
+    Puts the members of a DEB's control archive (postinst, prerm, ...) into output_path/DEBIAN instead of the
+    package root, so they stay maintainer scripts instead of being installed as files.
+    Anything already in DEBIAN (Silica's generated control, silica_data/scripts) takes priority.
+    """
+    debian_path = os.path.join(output_path, "DEBIAN")
+    os.makedirs(debian_path, exist_ok=True)
+    for member in control_tar:
+        if not os.path.lexists(os.path.join(debian_path, member.name)):
+            control_tar.extract(member, debian_path)
 
 
 class DpkgPy:
@@ -22,31 +42,77 @@ class DpkgPy:
         try:
             root_ar = arpy.Archive(input_path)
             root_ar.read_all_headers()
-            try:
-                data_bin = root_ar.archived_files[b'data.tar.gz']
-                data_tar = tarfile.open(fileobj=data_bin)
-                data_tar.extractall(output_path)
-            except Exception:
+            # data.*
+            extracted_data = False
+            # Prefer common formats first
+            for key, mode in [
+                (b'data.tar.gz', 'r:*'),
+                (b'data.tar.xz', 'r:xz'),
+                (b'data.tar.lzma', 'r:xz'),
+            ]:
+                if extracted_data:
+                    break
                 try:
-                    data_theos_bin = root_ar.archived_files[b'data.tar.lzma']
-                    data_theos_bin.seekable = lambda: True
-                    data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
-                    data_theos_tar.extractall(output_path)
+                    data_bin = root_ar.archived_files[key]
+                    data_bin.seekable = lambda: True
+                    data_tar = tarfile.open(fileobj=data_bin, mode=mode)
+                    data_tar.extractall(output_path)
+                    extracted_data = True
                 except Exception:
-                    try:
-                        data_theos_bin = root_ar.archived_files[b'data.tar.xz']
-                        data_theos_bin.seekable = lambda: True
-                        data_theos_tar = tarfile.open(fileobj=data_theos_bin, mode='r:xz')
-                        data_theos_tar.extractall(output_path)
-                    except Exception:
-                        print("\033[91m- DEB Extraction Error -\n"
-                              "The DEB file inserted for one of your packages is invalid. Please report this as a bug "
-                              "and attach the DEB file at \"" + output_path + "\".\033[0m")
+                    pass
 
-            control_bin = root_ar.archived_files[b'control.tar.gz']
-            control_tar = tarfile.open(fileobj=control_bin)
-            control_tar.extractall(output_path)
-            return True
+            # Zstandard support: data.tar.zst
+            if not extracted_data:
+                try:
+                    data_zst_bin = root_ar.archived_files[b'data.tar.zst']
+                    if zstd is None:
+                        raise RuntimeError("Missing zstandard module; install with: pip install zstandard")
+                    dctx = zstd.ZstdDecompressor()
+                    stream = dctx.stream_reader(data_zst_bin)
+                    data_tar = tarfile.open(fileobj=stream, mode='r|*')
+                    data_tar.extractall(output_path)
+                    extracted_data = True
+                except Exception:
+                    pass
+
+            if not extracted_data:
+                print("\033[91m- DEB Extraction Error -\n"
+                      "The DEB file inserted for one of your packages is invalid. Please report this as a bug "
+                      "and attach the DEB file at \"" + output_path + "\".\033[0m")
+
+            # control.*
+            extracted_control = False
+            for key, mode in [
+                (b'control.tar.gz', 'r:*'),
+                (b'control.tar.xz', 'r:xz'),
+                (b'control.tar.lzma', 'r:xz'),
+            ]:
+                if extracted_control:
+                    break
+                try:
+                    control_bin = root_ar.archived_files[key]
+                    control_bin.seekable = lambda: True
+                    control_tar = tarfile.open(fileobj=control_bin, mode=mode)
+                    _extract_control_scripts(control_tar, output_path)
+                    extracted_control = True
+                except Exception:
+                    pass
+
+            # Zstandard support: control.tar.zst
+            if not extracted_control:
+                try:
+                    control_zst_bin = root_ar.archived_files[b'control.tar.zst']
+                    if zstd is None:
+                        raise RuntimeError("Missing zstandard module; install with: pip install zstandard")
+                    dctx = zstd.ZstdDecompressor()
+                    stream = dctx.stream_reader(control_zst_bin)
+                    control_tar = tarfile.open(fileobj=stream, mode='r|*')
+                    _extract_control_scripts(control_tar, output_path)
+                    extracted_control = True
+                except Exception:
+                    pass
+
+            return extracted_data and extracted_control
         except Exception:
             return False
 
@@ -60,10 +126,37 @@ class DpkgPy:
         try:
             root_ar = arpy.Archive(input_path)
             root_ar.read_all_headers()
-            control_bin = root_ar.archived_files[b'control.tar.gz']
-            control_tar = tarfile.open(fileobj=control_bin)
-            control_tar.extractall(output_path)
-            return True
+            extracted_control = False
+            for key, mode in [
+                (b'control.tar.gz', 'r:*'),
+                (b'control.tar.xz', 'r:xz'),
+                (b'control.tar.lzma', 'r:xz'),
+            ]:
+                if extracted_control:
+                    break
+                try:
+                    control_bin = root_ar.archived_files[key]
+                    control_bin.seekable = lambda: True
+                    control_tar = tarfile.open(fileobj=control_bin, mode=mode)
+                    control_tar.extractall(output_path)
+                    extracted_control = True
+                except Exception:
+                    pass
+
+            if not extracted_control:
+                try:
+                    control_zst_bin = root_ar.archived_files[b'control.tar.zst']
+                    if zstd is None:
+                        raise RuntimeError("Missing zstandard module; install with: pip install zstandard")
+                    dctx = zstd.ZstdDecompressor()
+                    stream = dctx.stream_reader(control_zst_bin)
+                    control_tar = tarfile.open(fileobj=stream, mode='r|*')
+                    control_tar.extractall(output_path)
+                    extracted_control = True
+                except Exception:
+                    pass
+
+            return extracted_control
         except Exception:
             return False
 

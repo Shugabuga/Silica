@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Silica build temp
+temp/
+docs/
+
+# Local virtualenv
+.venv/
+
+# Local repo content (not part of the shared code)
+Packages/

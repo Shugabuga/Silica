@@ -33,11 +33,27 @@ class DebianPackager(object):
         release_file += "Suite: stable\n"
         release_file += "Version: 1.0\n"
         release_file += "Codename: ios\n"
-        release_file += "Architectures: iphoneos-arm\n"
+        release_file += "Architectures: iphoneos-arm64 iphoneos-arm64e\n"
         release_file += "Components: main\n"
         release_file += "Description: " + repo_settings['description'].replace("\n\n", "\n .\n ").replace("\n", "\n ") + "\n"
 
         return release_file
+
+    @staticmethod
+    def FormatPerson(person):
+        """
+        Formats a {name, email} object as "Name <email>", or just "Name" if there is no email.
+        Returns None if there is no name.
+
+        Object person: An object with "name" and optionally "email".
+        """
+        if not isinstance(person, dict):
+            return None
+        name = (person.get('name') or "").strip()
+        if not name:
+            return None
+        email = (person.get('email') or "").strip()
+        return name + " <" + email + ">" if email else name
 
     def CompileControl(self, tweak_data, repo_settings):
         """
@@ -48,7 +64,7 @@ class DebianPackager(object):
         """
         subfolder = PackageLister.FullPathCname(self, repo_settings)
 
-        control_file = "Architecture: iphoneos-arm\n"
+        control_file = "Architecture: " + tweak_data['architecture'] + "\n"
         # Mandatory properties include name, bundle id, and version.
         control_file += "Package: " + tweak_data['bundle_id'] + "\n"
         control_file += "Name: " + tweak_data['name'] + "\n"
@@ -61,8 +77,12 @@ class DebianPackager(object):
                         + tweak_data['bundle_id'] + ".json\n"
         control_file += "ModernDepiction: https://" + repo_settings['cname'] + subfolder + "/depiction/native/" \
                         + tweak_data['bundle_id'] + ".json\n"
-        control_file += "Icon: https://" + repo_settings['cname'] + subfolder + "/assets/" + tweak_data[
-            'bundle_id'] + "/icon.png\n"
+        # Only advertise an icon if the package ships its own; otherwise let the package manager
+        # fall back to the icon from the original tweak's repo (same bundle id).
+        package_dir = PackageLister.BundleIdToDirName(self, tweak_data['bundle_id'])
+        if os.path.isfile(self.root + "Packages/" + package_dir + "/silica_data/icon.png"):
+            control_file += "Icon: https://" + repo_settings['cname'] + subfolder + "/assets/" + tweak_data[
+                'bundle_id'] + "/icon.png\n"
 
         # Optional properties
         try:
@@ -150,45 +170,17 @@ class DebianPackager(object):
         except Exception:
             control_file += "Tags: compatible_min::ios" + tweak_data['works_min'] + ", compatible_max::ios" + tweak_data['works_max'] + "\n"
 
-        try:
-            if tweak_data['developer']:
-                try:
-                    if tweak_data['developer']['email']:
-                        control_file += "Author: " + tweak_data['developer']['name'] + " <" + tweak_data['developer'][
-                            'email'] + ">\n"
-                except Exception:
-                    control_file += "Author: " + tweak_data['developer']['name'] + "\n"
-        except Exception:
-            control_file += "Author: Unknown\n"
+        # An empty email must still produce the field (name only), otherwise dpkg warns about it being missing.
+        author = self.FormatPerson(tweak_data.get('developer'))
+        control_file += "Author: " + (author or "Unknown") + "\n"
 
-        try:
-            if tweak_data['maintainer']['email']:
-                control_file += "Maintainer: " + tweak_data['maintainer']['name'] + " <" \
-                                + tweak_data['maintainer']['email'] + ">\n"
-        except Exception:
-            try:
-                control_file += "Maintainer: " + tweak_data['maintainer']['name'] + "\n"
-            except Exception:
-                try:
-                    if tweak_data['developer']['email']:
-                        control_file += "Maintainer: " + tweak_data['developer']['name'] + " <" \
-                                        + tweak_data['developer']['email'] + ">\n"
-                except Exception:
-                    try:
-                        control_file += "Maintainer: " + tweak_data['developer']['name'] + "\n"
-                    except Exception:
-                        control_file += "Maintainer: Unknown\n"
+        maintainer = self.FormatPerson(tweak_data.get('maintainer')) or author \
+            or self.FormatPerson(repo_settings.get('maintainer'))
+        control_file += "Maintainer: " + (maintainer or "Unknown") + "\n"
 
-        try:
-            if tweak_data['sponsor']:
-                try:
-                    if tweak_data['sponsor']['email']:
-                        control_file += "Sponsor: " + tweak_data['sponsor']['name'] + " <" + tweak_data['sponsor'][
-                            'email'] + ">\n"
-                except Exception:
-                    control_file += "Sponsor: " + tweak_data['sponsor']['name'] + "\n"
-        except Exception:
-            pass
+        sponsor = self.FormatPerson(tweak_data.get('sponsor'))
+        if sponsor:
+            control_file += "Sponsor: " + sponsor + "\n"
 
         # other_control
         try:
